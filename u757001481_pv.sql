@@ -1,6 +1,6 @@
 -- Création de la base de données
-CREATE DATABASE IF NOT EXISTS resultats_exam CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE resultats_exam;
+CREATE DATABASE IF NOT EXISTS u757001481_pv CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE u757001481_pv;
 
 -- Table des administrateurs
 CREATE TABLE IF NOT EXISTS admins (
