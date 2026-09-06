@@ -1,0 +1,76 @@
+<?php
+require '../config.php';
+
+if (!isset($_SESSION['admin'])) {
+    header('Location: login.php');
+    exit;
+}
+
+$stmt = $pdo->query("SELECT * FROM publications ORDER BY date_publication DESC");
+$publications = $stmt->fetchAll();
+
+$page_title = 'Tableau de bord';
+$base_url = '../';
+require '../partials/header.php';
+?>
+<main class="max-w-6xl mx-auto px-6 py-10">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6 pb-4 border-b border-gray-300">
+        <div>
+            <p class="text-[11px] uppercase tracking-[0.25em] text-etat-orange font-semibold mb-1">Administration</p>
+            <h1 class="font-serif text-2xl font-bold uppercase tracking-wide">Registre des publications</h1>
+            <p class="text-sm text-gray-600 mt-1"><?= count($publications) ?> procès-verbal(aux) enregistré(s)</p>
+        </div>
+        <div class="flex gap-3">
+            <a href="upload.php" class="inline-flex items-center gap-2 px-5 py-2.5 bg-etat-vert text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#095733] transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                Nouvelle publication
+            </a>
+            <a href="logout.php" class="inline-flex items-center gap-2 px-5 py-2.5 border border-gray-500 text-gray-700 text-xs font-semibold uppercase tracking-wider hover:bg-gray-800 hover:text-white hover:border-gray-800 transition-colors">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                Déconnexion
+            </a>
+        </div>
+    </div>
+
+    <?php if (empty($publications)): ?>
+        <div class="bg-white border border-gray-300 px-8 py-12 text-center">
+            <p class="font-serif text-lg mb-1">Registre vide</p>
+            <p class="text-sm text-gray-600">Aucun procès-verbal n'a encore été publié.</p>
+        </div>
+    <?php else: ?>
+        <div class="bg-white border border-gray-300 overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="bg-etat-encre text-white">
+                        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider w-16">N°</th>
+                        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider">Intitulé du procès-verbal</th>
+                        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider w-28">Support</th>
+                        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider w-44">Date de publication</th>
+                        <th class="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-wider w-56">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($publications as $i => $pub): ?>
+                        <tr class="border-t border-gray-300 <?= $i % 2 ? 'bg-[#FAF9F6]' : 'bg-white' ?> hover:bg-[#F1F5F2]">
+                            <td class="px-4 py-3 font-serif text-gray-600"><?= str_pad((int)$pub['id'], 4, '0', STR_PAD_LEFT) ?></td>
+                            <td class="px-4 py-3 font-serif font-semibold"><?= htmlspecialchars($pub['titre']) ?></td>
+                            <td class="px-4 py-3">
+                                <span class="inline-block px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider border <?= $pub['fichier_type'] === 'pdf' ? 'border-etat-orange text-etat-orange' : 'border-etat-vert text-etat-vert' ?>">
+                                    <?= $pub['fichier_type'] === 'pdf' ? 'PDF' : 'Image' ?>
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-gray-600"><?= htmlspecialchars(date('d/m/Y à H:i', strtotime($pub['date_publication']))) ?></td>
+                            <td class="px-4 py-3">
+                                <div class="flex gap-4 text-xs font-semibold uppercase tracking-wider">
+                                    <a href="../afficher.php?id=<?= (int)$pub['id'] ?>" target="_blank" class="text-etat-vert hover:underline">Consulter</a>
+                                    <a href="../afficher.php?id=<?= (int)$pub['id'] ?>&download=1" class="text-gray-700 hover:underline">Télécharger</a>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</main>
+<?php require '../partials/footer.php'; ?>
